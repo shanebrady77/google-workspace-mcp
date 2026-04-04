@@ -1,0 +1,15 @@
+[project]
+name = "google-workspace-mcp"
+version = "0.1.0"
+description = "Custom Google Workspace MCP server — Gmail, Drive, Calendar, Docs, Sheets, Tasks, Contacts, Slides, Forms"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "google-auth>=2.23.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-api-python-client>=2.100.0",
+    "pydantic>=2.0.0",
+]
+
+[project.scripts]
+gw-mcp = "server:main"
