@@ -64,78 +64,135 @@ First time you use any tool, a browser window opens for Google OAuth. Sign in, a
 
 ---
 
-## Tools (51 total)
+## Tools (108 total)
 
-### Gmail (7)
+### Gmail (18)
 - `gmail_search` — search with Gmail query syntax
 - `gmail_read_message` — read full message content
 - `gmail_read_thread` — read all messages in a thread
 - `gmail_send` — **send emails** (plain text or HTML, CC/BCC, threading)
 - `gmail_draft` — create drafts
+- `gmail_send_draft` — send an existing draft
 - `gmail_list_labels` — list all labels
+- `gmail_create_label` — create new labels
+- `gmail_delete_label` — delete labels
 - `gmail_modify_labels` — archive, mark read/unread, star, etc
+- `gmail_get_attachment` — download attachments
+- `gmail_trash` — move to trash
+- `gmail_untrash` — restore from trash
+- `gmail_list_filters` — list email filters
+- `gmail_create_filter` — create filter rules
+- `gmail_delete_filter` — delete filters
+- `gmail_get_vacation` — get vacation responder settings
+- `gmail_set_vacation` — set vacation responder
 
-### Calendar (5)
+### Calendar (8)
 - `calendar_list_calendars` — list all calendars
 - `calendar_get_events` — get events with time range and search
 - `calendar_create_event` — create events with attendees + Google Meet links
 - `calendar_update_event` — update existing events
 - `calendar_delete_event` — delete events
+- `calendar_freebusy` — query free/busy availability
+- `calendar_list_recurring_instances` — list instances of recurring events
+- `calendar_quick_add` — create event from text string
 
-### Meet (4)
+### Meet (7)
 - `meet_create_space` — create a meeting space
 - `meet_get_space` — get meeting space by name
-- `meet_list_participants` — list participants and sessions
+- `meet_list_participants` — list participants
 - `meet_get_artifacts` — get recordings, transcripts, and transcript entries
+- `meet_end_conference` — end an active conference
+- `meet_list_conference_records` — list past meetings
+- `meet_list_participant_sessions` — list participant sessions
 
-### Drive (6)
+### Drive (15)
 - `drive_search` — search files
 - `drive_read_file` — read file content (Docs, Sheets, text files)
 - `drive_create_file` — create files (plain text or Google Docs)
 - `drive_list_folder` — list folder contents
 - `drive_share_file` — share files with users
 - `drive_create_folder` — create folders
+- `drive_copy_file` — copy files
+- `drive_export` — export to format (PDF, CSV, etc)
+- `drive_add_comment` — add comments to files
+- `drive_list_comments` — list file comments
+- `drive_list_revisions` — list file version history
+- `drive_list_permissions` — list file permissions
+- `drive_delete_permission` — revoke file access
+- `drive_trash` — move to trash
+- `drive_untrash` — restore from trash
 
-### Docs (5)
+### Docs (9)
 - `docs_create` — create new docs
 - `docs_read` — read doc content
 - `docs_insert_text` — insert text at position
 - `docs_find_replace` — find and replace
 - `docs_append_text` — append to end
+- `docs_insert_table` — insert tables
+- `docs_insert_image` — insert images
+- `docs_format_text` — format text (bold, italic, color, font)
+- `docs_insert_bullets` — insert bullet lists
+- `docs_insert_page_break` — insert page breaks
 
-### Sheets (6)
+### Sheets (12)
 - `sheets_read` — read cell ranges
 - `sheets_write` — write values
 - `sheets_append` — append rows
 - `sheets_create` — create spreadsheets
 - `sheets_clear` — clear ranges
 - `sheets_get_info` — get spreadsheet metadata
+- `sheets_batch_update` — batch update cells
+- `sheets_add_sheet` — add new sheet/tab
+- `sheets_delete_sheet` — delete sheet/tab
+- `sheets_merge_cells` — merge cells
+- `sheets_add_chart` — add charts
+- `sheets_add_conditional_format` — add conditional formatting
+- `sheets_add_named_range` — add named ranges
 
-### Tasks (6)
+### Tasks (8)
 - `tasks_list_tasklists` — list task lists
 - `tasks_list` — list tasks
 - `tasks_create` — create tasks (with subtask support)
 - `tasks_update` — update tasks
 - `tasks_delete` — delete tasks
 - `tasks_create_tasklist` — create task lists
+- `tasks_move` — move/reorder tasks
+- `tasks_clear_completed` — clear completed tasks
 
-### Contacts (5)
+### Contacts (11)
 - `contacts_search` — search by name/email/phone
 - `contacts_list` — list all contacts
 - `contacts_create` — create contacts
 - `contacts_update` — update contacts
 - `contacts_delete` — delete contacts
+- `contacts_list_groups` — list contact groups
+- `contacts_create_group` — create contact group
+- `contacts_modify_group_members` — add/remove group members
+- `contacts_batch_create` — batch create contacts
+- `contacts_batch_delete` — batch delete contacts
+- `contacts_get_photo` — get contact photo
 
-### Slides (4)
+### Slides (10)
 - `slides_create` — create presentations
 - `slides_read` — read slide content
 - `slides_add_slide` — add slides with layouts
 - `slides_add_text` — add text to slides
+- `slides_insert_shape` — insert shapes
+- `slides_insert_image` — insert images
+- `slides_insert_table` — insert tables
+- `slides_insert_video` — insert videos
+- `slides_format_text` — format text
+- `slides_get_thumbnail` — get slide thumbnail
 
-### Forms (3)
+### Forms (8)
 - `forms_create` — create forms
 - `forms_read` — read form structure
 - `forms_list_responses` — list form responses
+- `forms_add_question` — add questions
+- `forms_update_question` — update questions
+- `forms_delete_question` — delete questions
+- `forms_move_question` — reorder questions
+- `forms_update_settings` — update form settings
 
 ---
 
@@ -145,28 +202,28 @@ Want to rebuild this from scratch using Claude? Paste this into Claude Code Desk
 
 > Build me a Python MCP server using FastMCP at ~/Desktop/google-workspace-mcp/. It should give me full access to Google Workspace with these tools:
 >
-> Gmail (7): search, read message, read thread, send (with CC/BCC, HTML, threading for replies), create draft, list labels, modify labels (archive, star, mark read/unread)
+> Gmail (18): search, read message, read thread, send (with CC/BCC, HTML, threading for replies), create draft, send draft, list labels, create label, delete label, modify labels (archive, star, mark read/unread), get attachment, trash, untrash, list filters, create filter, delete filter, get vacation responder, set vacation responder
 >
-> Calendar (5): list calendars, get events (with time range + search), create event (with attendees, timezone, Google Meet link generation), update event, delete event
+> Calendar (8): list calendars, get events (with time range + search), create event (with attendees, timezone, Google Meet link generation), update event, delete event, query free/busy, list recurring event instances, quick add from text string
 >
-> Meet (4): create meeting space, get meeting space by name, list participants/sessions, get meeting artifacts (recordings, transcripts)
+> Meet (7): create meeting space, get meeting space, list participants, get artifacts (recordings + transcripts), end active conference, list conference records, list participant sessions
 >
-> Drive (6): search files, read file content (export Google Docs/Sheets/Slides to text), create file (plain text or Google Doc), list folder, share file, create folder
+> Drive (15): search files, read file content (export Google Docs/Sheets/Slides to text), create file (plain text or Google Doc), list folder, share file, create folder, copy file, export to format, add comment, list comments, list revisions, list permissions, delete permission, trash, untrash
 >
-> Docs (5): create, read, insert text at position, find and replace, append text
+> Docs (9): create, read, insert text at position, find and replace, append text, insert table, insert image, format text (bold/italic/color/font), insert bullet list, insert page break
 >
-> Sheets (6): read ranges, write values, append rows, create spreadsheet, clear ranges, get spreadsheet metadata
+> Sheets (12): read ranges, write values, append rows, create spreadsheet, clear ranges, get spreadsheet metadata, batch update cells, add sheet/tab, delete sheet/tab, merge cells, add chart, add conditional formatting, add named range
 >
-> Tasks (6): list task lists, list tasks, create task (with subtask support), update task, delete task, create task list
+> Tasks (8): list task lists, list tasks, create task (with subtask support), update task, delete task, create task list, move/reorder task, clear completed tasks
 >
-> Contacts (5): search by name/email/phone, list all, create, update, delete
+> Contacts (11): search by name/email/phone, list all, create, update, delete, list contact groups, create group, modify group members, batch create, batch delete, get contact photo
 >
-> Slides (4): create presentation, read slide content, add slide with layout, add text to slide
+> Slides (10): create presentation, read slide content, add slide with layout, add text to slide, insert shape, insert image, insert table, insert video, format text, get slide thumbnail
 >
-> Forms (3): create form, read form structure, list responses
+> Forms (8): create form, read form structure, list responses, add question, update question, delete question, move/reorder question, update form settings
 >
 > Requirements:
-> - Separate file per service (tools_gmail.py, tools_calendar.py, tools_meet.py, etc) plus auth.py and server.py
+> - Separate file per service (tools_gmail.py, tools_calendar.py, tools_meet.py, tools_drive.py, tools_docs.py, tools_sheets.py, tools_tasks.py, tools_contacts.py, tools_slides.py, tools_forms.py) plus auth.py and server.py
 > - auth.py handles Google OAuth2: reads GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET from env vars, opens browser on first use, saves token to ~/.gw-mcp/token.json, auto-refreshes
 > - Use google-api-python-client and google-auth-oauthlib
 > - pyproject.toml with uv, entry point gw-mcp = "server:main"
