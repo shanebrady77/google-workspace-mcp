@@ -124,6 +124,119 @@ def contacts_delete(resource_name: str) -> str:
     return json.dumps({"status": "deleted", "resourceName": resource_name})
 
 
+def contacts_list_groups(max_results: int = 50) -> str:
+    """List all contact groups (labels).
+
+    Args:
+        max_results: Maximum groups to return.
+    """
+    svc = _people()
+    result = svc.contactGroups().list(pageSize=max_results).execute()
+    groups = []
+    for g in result.get("contactGroups", []):
+        groups.append({
+            "resourceName": g.get("resourceName", ""),
+            "name": g.get("name", ""),
+            "formattedName": g.get("formattedName", ""),
+            "groupType": g.get("groupType", ""),
+            "memberCount": g.get("memberCount", 0),
+        })
+    return json.dumps(groups, indent=2)
+
+
+def contacts_create_group(name: str) -> str:
+    """Create a new contact group.
+
+    Args:
+        name: Name for the group.
+    """
+    svc = _people()
+    result = svc.contactGroups().create(body={
+        "contactGroup": {"name": name}
+    }).execute()
+    return json.dumps({"status": "created", "resourceName": result["resourceName"],
+                       "name": result.get("name", "")})
+
+
+def contacts_modify_group_members(group_resource_name: str,
+                                  add_contacts: list[str] = None,
+                                  remove_contacts: list[str] = None) -> str:
+    """Add or remove contacts from a contact group.
+
+    Args:
+        group_resource_name: The group resource name (e.g. 'contactGroups/abc123').
+        add_contacts: List of contact resource names to add (e.g. ['people/c123']).
+        remove_contacts: List of contact resource names to remove.
+    """
+    svc = _people()
+    body = {}
+    if add_contacts:
+        body["resourceNamesToAdd"] = add_contacts
+    if remove_contacts:
+        body["resourceNamesToRemove"] = remove_contacts
+
+    svc.contactGroups().members().modify(
+        resourceName=group_resource_name, body=body
+    ).execute()
+    return json.dumps({"status": "group_members_modified", "group": group_resource_name})
+
+
+def contacts_batch_create(contacts: list[dict]) -> str:
+    """Create multiple contacts in a single request.
+
+    Args:
+        contacts: List of contact dicts, each with keys: givenName, familyName, email, phone, organization, title.
+                  Example: [{"givenName": "Alice", "email": "alice@co.com"}, {"givenName": "Bob"}]
+    """
+    svc = _people()
+    contact_bodies = []
+    for c in contacts:
+        person = {"names": [{"givenName": c.get("givenName", ""), "familyName": c.get("familyName", "")}]}
+        if c.get("email"):
+            person["emailAddresses"] = [{"value": c["email"]}]
+        if c.get("phone"):
+            person["phoneNumbers"] = [{"value": c["phone"]}]
+        if c.get("organization") or c.get("title"):
+            person["organizations"] = [{"name": c.get("organization", ""), "title": c.get("title", "")}]
+        contact_bodies.append({"contactPerson": person})
+
+    result = svc.people().batchCreateContacts(body={"contacts": contact_bodies}).execute()
+    created = []
+    for entry in result.get("createdPeople", []):
+        person = entry.get("person", {})
+        created.append({
+            "resourceName": person.get("resourceName", ""),
+            "name": person.get("names", [{}])[0].get("displayName", ""),
+        })
+    return json.dumps({"status": "batch_created", "count": len(created), "contacts": created})
+
+
+def contacts_batch_delete(resource_names: list[str]) -> str:
+    """Delete multiple contacts in a single request.
+
+    Args:
+        resource_names: List of contact resource names to delete (e.g. ['people/c123', 'people/c456']).
+    """
+    svc = _people()
+    svc.people().batchDeleteContacts(body={"resourceNames": resource_names}).execute()
+    return json.dumps({"status": "batch_deleted", "count": len(resource_names)})
+
+
+def contacts_get_photo(resource_name: str) -> str:
+    """Get the URL of a contact's photo.
+
+    Args:
+        resource_name: Contact resource name (e.g. 'people/c123').
+    """
+    svc = _people()
+    person = svc.people().get(resourceName=resource_name, personFields="photos").execute()
+    photos = person.get("photos", [])
+    if photos:
+        return json.dumps({"resourceName": resource_name, "photoUrl": photos[0].get("url", ""),
+                           "default": photos[0].get("default", False)})
+    return json.dumps({"resourceName": resource_name, "photoUrl": "", "default": True})
+
+
 def _format_person(person: dict) -> dict:
     """Format a Person resource into a clean dict."""
     names = person.get("names", [{}])

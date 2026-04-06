@@ -28,9 +28,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/forms.responses.readonly",
     "https://www.googleapis.com/auth/tasks",
     "https://www.googleapis.com/auth/contacts",
-    "https://www.googleapis.com/auth/chat.spaces",
-    "https://www.googleapis.com/auth/chat.messages",
-    "https://www.googleapis.com/auth/script.projects",
+    "https://www.googleapis.com/auth/meetings.space.created",
+    "https://www.googleapis.com/auth/meetings.space.readonly",
 ]
 
 # Service cache so we don't rebuild on every call

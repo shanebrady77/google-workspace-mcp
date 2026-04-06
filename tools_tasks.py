@@ -120,3 +120,34 @@ def tasks_create_tasklist(title: str) -> str:
     svc = _tasks()
     result = svc.tasklists().insert(body={"title": title}).execute()
     return json.dumps({"status": "created", "id": result["id"], "title": result["title"]})
+
+
+def tasks_move(task_id: str, tasklist_id: str = "@default",
+               parent: str = "", previous: str = "") -> str:
+    """Move/reorder a task within a task list.
+
+    Args:
+        task_id: The task ID to move.
+        tasklist_id: Task list ID.
+        parent: New parent task ID (empty = top level). Set to make it a subtask.
+        previous: Task ID to place this after (empty = first position).
+    """
+    svc = _tasks()
+    kwargs = {"tasklist": tasklist_id, "task": task_id}
+    if parent:
+        kwargs["parent"] = parent
+    if previous:
+        kwargs["previous"] = previous
+    result = svc.tasks().move(**kwargs).execute()
+    return json.dumps({"status": "moved", "id": result["id"], "parent": result.get("parent", "")})
+
+
+def tasks_clear_completed(tasklist_id: str = "@default") -> str:
+    """Clear all completed tasks from a task list.
+
+    Args:
+        tasklist_id: Task list ID (default '@default').
+    """
+    svc = _tasks()
+    svc.tasks().clear(tasklist=tasklist_id).execute()
+    return json.dumps({"status": "completed_tasks_cleared", "tasklist": tasklist_id})

@@ -16,6 +16,7 @@ import tools_tasks
 import tools_contacts
 import tools_slides
 import tools_forms
+import tools_meet
 
 mcp = FastMCP("google_workspace_mcp")
 
@@ -59,6 +60,64 @@ def gmail_modify_labels(message_id: str, add_labels: list[str] = None,
     """Modify labels on a message. Use to archive (remove INBOX), mark read (remove UNREAD), star (add STARRED), etc."""
     return tools_gmail.gmail_modify_labels(message_id, add_labels, remove_labels)
 
+@mcp.tool()
+def gmail_send_draft(draft_id: str) -> str:
+    """Send an existing Gmail draft."""
+    return tools_gmail.gmail_send_draft(draft_id)
+
+@mcp.tool()
+def gmail_get_attachment(message_id: str, attachment_id: str) -> str:
+    """Download a Gmail attachment and return its base64 data."""
+    return tools_gmail.gmail_get_attachment(message_id, attachment_id)
+
+@mcp.tool()
+def gmail_trash(message_id: str) -> str:
+    """Move a Gmail message to the trash."""
+    return tools_gmail.gmail_trash(message_id)
+
+@mcp.tool()
+def gmail_untrash(message_id: str) -> str:
+    """Remove a Gmail message from the trash."""
+    return tools_gmail.gmail_untrash(message_id)
+
+@mcp.tool()
+def gmail_create_label(name: str) -> str:
+    """Create a new Gmail label."""
+    return tools_gmail.gmail_create_label(name)
+
+@mcp.tool()
+def gmail_delete_label(label_id: str) -> str:
+    """Delete a Gmail label."""
+    return tools_gmail.gmail_delete_label(label_id)
+
+@mcp.tool()
+def gmail_list_filters() -> str:
+    """List all Gmail filters."""
+    return tools_gmail.gmail_list_filters()
+
+@mcp.tool()
+def gmail_create_filter(criteria: dict, action: dict) -> str:
+    """Create a Gmail filter. criteria: {from, to, subject, query, hasAttachment}. action: {addLabelIds, removeLabelIds, forward}."""
+    return tools_gmail.gmail_create_filter(criteria, action)
+
+@mcp.tool()
+def gmail_delete_filter(filter_id: str) -> str:
+    """Delete a Gmail filter."""
+    return tools_gmail.gmail_delete_filter(filter_id)
+
+@mcp.tool()
+def gmail_get_vacation() -> str:
+    """Get current Gmail vacation/auto-reply settings."""
+    return tools_gmail.gmail_get_vacation()
+
+@mcp.tool()
+def gmail_set_vacation(enable: bool, subject: str = "", body: str = "",
+                       html: bool = False, start_time: int = 0, end_time: int = 0,
+                       contacts_only: bool = False, domain_only: bool = False) -> str:
+    """Set Gmail vacation/auto-reply responder."""
+    return tools_gmail.gmail_set_vacation(enable, subject, body, html, start_time, end_time,
+                                          contacts_only, domain_only)
+
 # ── Calendar ─────────────────────────────────────────────────────────────────
 
 @mcp.tool()
@@ -75,10 +134,10 @@ def calendar_get_events(calendar_id: str = "primary", time_min: str = "",
 @mcp.tool()
 def calendar_create_event(summary: str, start: str, end: str, calendar_id: str = "primary",
                           description: str = "", location: str = "", attendees: list[str] = None,
-                          timezone: str = "America/Toronto") -> str:
-    """Create a calendar event. Use RFC3339 datetimes for timed events or YYYY-MM-DD for all-day."""
+                          timezone: str = "America/Toronto", add_google_meet: bool = False) -> str:
+    """Create a calendar event. Use RFC3339 datetimes for timed events or YYYY-MM-DD for all-day. Set add_google_meet=True to auto-generate a Google Meet link."""
     return tools_calendar.calendar_create_event(summary, start, end, calendar_id, description,
-                                                 location, attendees, timezone)
+                                                 location, attendees, timezone, add_google_meet)
 
 @mcp.tool()
 def calendar_update_event(event_id: str, calendar_id: str = "primary", summary: str = "",
@@ -92,6 +151,61 @@ def calendar_update_event(event_id: str, calendar_id: str = "primary", summary: 
 def calendar_delete_event(event_id: str, calendar_id: str = "primary") -> str:
     """Delete a calendar event."""
     return tools_calendar.calendar_delete_event(event_id, calendar_id)
+
+@mcp.tool()
+def calendar_freebusy(time_min: str, time_max: str, calendars: list[str] = None,
+                      timezone: str = "America/Toronto") -> str:
+    """Query free/busy info for calendars. Returns busy time blocks."""
+    return tools_calendar.calendar_freebusy(time_min, time_max, calendars, timezone)
+
+@mcp.tool()
+def calendar_list_recurring_instances(event_id: str, calendar_id: str = "primary",
+                                      time_min: str = "", time_max: str = "",
+                                      max_results: int = 25) -> str:
+    """List instances of a recurring event."""
+    return tools_calendar.calendar_list_recurring_instances(event_id, calendar_id, time_min, time_max, max_results)
+
+@mcp.tool()
+def calendar_quick_add(text: str, calendar_id: str = "primary") -> str:
+    """Create an event from natural language (e.g. 'Lunch with John tomorrow at noon')."""
+    return tools_calendar.calendar_quick_add(text, calendar_id)
+
+# ── Meet ─────────────────────────────────────────────────────────────────────
+
+@mcp.tool()
+def meet_create_space() -> str:
+    """Create a new Google Meet meeting space. Returns meeting URI and code."""
+    return tools_meet.meet_create_space()
+
+@mcp.tool()
+def meet_get_space(space_name: str) -> str:
+    """Get details about a Google Meet meeting space by its resource name (e.g. 'spaces/abc-defg-hij')."""
+    return tools_meet.meet_get_space(space_name)
+
+@mcp.tool()
+def meet_list_participants(conference_record_name: str) -> str:
+    """List participants and their sessions for a conference record (e.g. 'conferenceRecords/abc-defg-hij')."""
+    return tools_meet.meet_list_participants(conference_record_name)
+
+@mcp.tool()
+def meet_get_artifacts(conference_record_name: str) -> str:
+    """Get recordings, transcripts, and transcript entries for a conference record."""
+    return tools_meet.meet_get_artifacts(conference_record_name)
+
+@mcp.tool()
+def meet_end_conference(space_name: str) -> str:
+    """End an active conference in a meeting space."""
+    return tools_meet.meet_end_conference(space_name)
+
+@mcp.tool()
+def meet_list_conference_records(max_results: int = 25) -> str:
+    """List past conference records (meeting history)."""
+    return tools_meet.meet_list_conference_records(max_results)
+
+@mcp.tool()
+def meet_list_participant_sessions(conference_record_name: str, participant_name: str) -> str:
+    """List sessions for a specific participant in a conference."""
+    return tools_meet.meet_list_participant_sessions(conference_record_name, participant_name)
 
 # ── Drive ────────────────────────────────────────────────────────────────────
 
@@ -127,6 +241,51 @@ def drive_create_folder(name: str, parent_id: str = "") -> str:
     """Create a folder in Google Drive."""
     return tools_drive.drive_create_folder(name, parent_id)
 
+@mcp.tool()
+def drive_copy_file(file_id: str, name: str = "", folder_id: str = "") -> str:
+    """Copy a file in Google Drive."""
+    return tools_drive.drive_copy_file(file_id, name, folder_id)
+
+@mcp.tool()
+def drive_export(file_id: str, mime_type: str) -> str:
+    """Export a Google Workspace file to a format (PDF, DOCX, CSV, XLSX, PPTX, PNG, etc)."""
+    return tools_drive.drive_export(file_id, mime_type)
+
+@mcp.tool()
+def drive_add_comment(file_id: str, content: str) -> str:
+    """Add a comment to a Drive file."""
+    return tools_drive.drive_add_comment(file_id, content)
+
+@mcp.tool()
+def drive_list_comments(file_id: str, max_results: int = 20) -> str:
+    """List comments on a Drive file."""
+    return tools_drive.drive_list_comments(file_id, max_results)
+
+@mcp.tool()
+def drive_list_revisions(file_id: str) -> str:
+    """List file revisions (version history)."""
+    return tools_drive.drive_list_revisions(file_id)
+
+@mcp.tool()
+def drive_list_permissions(file_id: str) -> str:
+    """List sharing permissions on a file."""
+    return tools_drive.drive_list_permissions(file_id)
+
+@mcp.tool()
+def drive_delete_permission(file_id: str, permission_id: str) -> str:
+    """Remove a sharing permission from a file."""
+    return tools_drive.drive_delete_permission(file_id, permission_id)
+
+@mcp.tool()
+def drive_trash(file_id: str) -> str:
+    """Move a file to the trash."""
+    return tools_drive.drive_trash(file_id)
+
+@mcp.tool()
+def drive_untrash(file_id: str) -> str:
+    """Restore a file from the trash."""
+    return tools_drive.drive_untrash(file_id)
+
 # ── Docs ─────────────────────────────────────────────────────────────────────
 
 @mcp.tool()
@@ -154,6 +313,37 @@ def docs_find_replace(document_id: str, find_text: str, replace_text: str,
 def docs_append_text(document_id: str, text: str) -> str:
     """Append text to the end of a Google Doc."""
     return tools_docs.docs_append_text(document_id, text)
+
+@mcp.tool()
+def docs_insert_table(document_id: str, rows: int, columns: int, index: int = 1) -> str:
+    """Insert a table into a Google Doc."""
+    return tools_docs.docs_insert_table(document_id, rows, columns, index)
+
+@mcp.tool()
+def docs_insert_image(document_id: str, image_uri: str, index: int = 1,
+                      width_pt: float = 300, height_pt: float = 200) -> str:
+    """Insert an image into a Google Doc from a URL."""
+    return tools_docs.docs_insert_image(document_id, image_uri, index, width_pt, height_pt)
+
+@mcp.tool()
+def docs_format_text(document_id: str, start_index: int, end_index: int,
+                     bold: bool = None, italic: bool = None, underline: bool = None,
+                     strikethrough: bool = None, font_size: float = None,
+                     foreground_color: str = "") -> str:
+    """Apply formatting (bold, italic, underline, font size, color) to a text range in a Google Doc."""
+    return tools_docs.docs_format_text(document_id, start_index, end_index, bold, italic,
+                                        underline, strikethrough, font_size, foreground_color)
+
+@mcp.tool()
+def docs_insert_bullets(document_id: str, start_index: int, end_index: int,
+                        bullet_type: str = "BULLET_DISC_CIRCLE_SQUARE") -> str:
+    """Apply bullet or numbered list formatting to paragraphs in a Google Doc."""
+    return tools_docs.docs_insert_bullets(document_id, start_index, end_index, bullet_type)
+
+@mcp.tool()
+def docs_insert_page_break(document_id: str, index: int) -> str:
+    """Insert a page break in a Google Doc."""
+    return tools_docs.docs_insert_page_break(document_id, index)
 
 # ── Sheets ───────────────────────────────────────────────────────────────────
 
@@ -186,6 +376,52 @@ def sheets_clear(spreadsheet_id: str, range: str) -> str:
 def sheets_get_info(spreadsheet_id: str) -> str:
     """Get spreadsheet metadata — title, sheets/tabs, row and column counts."""
     return tools_sheets.sheets_get_info(spreadsheet_id)
+
+@mcp.tool()
+def sheets_batch_update(spreadsheet_id: str, data: list[dict]) -> str:
+    """Write to multiple ranges in one request. data: [{"range": "A1", "values": [[...]]}]."""
+    return tools_sheets.sheets_batch_update(spreadsheet_id, data)
+
+@mcp.tool()
+def sheets_add_sheet(spreadsheet_id: str, title: str) -> str:
+    """Add a new sheet/tab to a spreadsheet."""
+    return tools_sheets.sheets_add_sheet(spreadsheet_id, title)
+
+@mcp.tool()
+def sheets_delete_sheet(spreadsheet_id: str, sheet_id: int) -> str:
+    """Delete a sheet/tab (by numeric sheet ID, not name)."""
+    return tools_sheets.sheets_delete_sheet(spreadsheet_id, sheet_id)
+
+@mcp.tool()
+def sheets_merge_cells(spreadsheet_id: str, sheet_id: int, start_row: int, end_row: int,
+                       start_col: int, end_col: int, merge_type: str = "MERGE_ALL") -> str:
+    """Merge cells in a sheet. Indices are 0-based, end is exclusive."""
+    return tools_sheets.sheets_merge_cells(spreadsheet_id, sheet_id, start_row, end_row,
+                                            start_col, end_col, merge_type)
+
+@mcp.tool()
+def sheets_add_chart(spreadsheet_id: str, sheet_id: int, chart_type: str,
+                     data_range: str, title: str = "") -> str:
+    """Add a chart. Types: BAR, LINE, AREA, COLUMN, SCATTER, COMBO, STEPPED_AREA."""
+    return tools_sheets.sheets_add_chart(spreadsheet_id, sheet_id, chart_type, data_range, title)
+
+@mcp.tool()
+def sheets_add_conditional_format(spreadsheet_id: str, sheet_id: int,
+                                  start_row: int, end_row: int,
+                                  start_col: int, end_col: int,
+                                  rule_type: str, values: list[str],
+                                  bg_color: str = "#FF0000") -> str:
+    """Add conditional formatting. rule_type: NUMBER_GREATER, TEXT_CONTAINS, CUSTOM_FORMULA, BLANK, etc."""
+    return tools_sheets.sheets_add_conditional_format(spreadsheet_id, sheet_id, start_row, end_row,
+                                                      start_col, end_col, rule_type, values, bg_color)
+
+@mcp.tool()
+def sheets_add_named_range(spreadsheet_id: str, name: str, sheet_id: int,
+                           start_row: int, end_row: int,
+                           start_col: int, end_col: int) -> str:
+    """Create a named range in a spreadsheet."""
+    return tools_sheets.sheets_add_named_range(spreadsheet_id, name, sheet_id, start_row, end_row,
+                                                start_col, end_col)
 
 # ── Tasks ────────────────────────────────────────────────────────────────────
 
@@ -222,6 +458,17 @@ def tasks_create_tasklist(title: str) -> str:
     """Create a new task list."""
     return tools_tasks.tasks_create_tasklist(title)
 
+@mcp.tool()
+def tasks_move(task_id: str, tasklist_id: str = "@default",
+               parent: str = "", previous: str = "") -> str:
+    """Move/reorder a task. Set parent to make it a subtask, previous to position after another task."""
+    return tools_tasks.tasks_move(task_id, tasklist_id, parent, previous)
+
+@mcp.tool()
+def tasks_clear_completed(tasklist_id: str = "@default") -> str:
+    """Clear all completed tasks from a task list."""
+    return tools_tasks.tasks_clear_completed(tasklist_id)
+
 # ── Contacts ─────────────────────────────────────────────────────────────────
 
 @mcp.tool()
@@ -253,6 +500,38 @@ def contacts_delete(resource_name: str) -> str:
     """Delete a contact by resource name."""
     return tools_contacts.contacts_delete(resource_name)
 
+@mcp.tool()
+def contacts_list_groups(max_results: int = 50) -> str:
+    """List all contact groups (labels)."""
+    return tools_contacts.contacts_list_groups(max_results)
+
+@mcp.tool()
+def contacts_create_group(name: str) -> str:
+    """Create a new contact group."""
+    return tools_contacts.contacts_create_group(name)
+
+@mcp.tool()
+def contacts_modify_group_members(group_resource_name: str,
+                                  add_contacts: list[str] = None,
+                                  remove_contacts: list[str] = None) -> str:
+    """Add or remove contacts from a contact group."""
+    return tools_contacts.contacts_modify_group_members(group_resource_name, add_contacts, remove_contacts)
+
+@mcp.tool()
+def contacts_batch_create(contacts: list[dict]) -> str:
+    """Create multiple contacts at once. Each dict: {givenName, familyName, email, phone, organization, title}."""
+    return tools_contacts.contacts_batch_create(contacts)
+
+@mcp.tool()
+def contacts_batch_delete(resource_names: list[str]) -> str:
+    """Delete multiple contacts at once."""
+    return tools_contacts.contacts_batch_delete(resource_names)
+
+@mcp.tool()
+def contacts_get_photo(resource_name: str) -> str:
+    """Get the photo URL for a contact."""
+    return tools_contacts.contacts_get_photo(resource_name)
+
 # ── Slides ───────────────────────────────────────────────────────────────────
 
 @mcp.tool()
@@ -277,6 +556,47 @@ def slides_add_text(presentation_id: str, slide_id: str, text: str,
     """Add text to a slide. Creates a new text box if shape_id is empty."""
     return tools_slides.slides_add_text_to_slide(presentation_id, slide_id, text, shape_id)
 
+@mcp.tool()
+def slides_insert_shape(presentation_id: str, slide_id: str, shape_type: str = "RECTANGLE",
+                        x_pt: float = 100, y_pt: float = 100,
+                        width_pt: float = 200, height_pt: float = 100) -> str:
+    """Insert a shape (RECTANGLE, ELLIPSE, TRIANGLE, STAR, ARROW_EAST, etc) onto a slide."""
+    return tools_slides.slides_insert_shape(presentation_id, slide_id, shape_type, x_pt, y_pt, width_pt, height_pt)
+
+@mcp.tool()
+def slides_insert_image(presentation_id: str, slide_id: str, image_url: str,
+                        x_pt: float = 100, y_pt: float = 100,
+                        width_pt: float = 300, height_pt: float = 200) -> str:
+    """Insert an image onto a slide from a URL."""
+    return tools_slides.slides_insert_image(presentation_id, slide_id, image_url, x_pt, y_pt, width_pt, height_pt)
+
+@mcp.tool()
+def slides_insert_table(presentation_id: str, slide_id: str, rows: int, columns: int,
+                        x_pt: float = 50, y_pt: float = 100,
+                        width_pt: float = 600, height_pt: float = 300) -> str:
+    """Insert a table onto a slide."""
+    return tools_slides.slides_insert_table(presentation_id, slide_id, rows, columns, x_pt, y_pt, width_pt, height_pt)
+
+@mcp.tool()
+def slides_insert_video(presentation_id: str, slide_id: str, video_id: str,
+                        x_pt: float = 100, y_pt: float = 100,
+                        width_pt: float = 400, height_pt: float = 225) -> str:
+    """Insert a YouTube video onto a slide. video_id is the YouTube video ID."""
+    return tools_slides.slides_insert_video(presentation_id, slide_id, video_id, x_pt, y_pt, width_pt, height_pt)
+
+@mcp.tool()
+def slides_format_text(presentation_id: str, shape_id: str, start_index: int, end_index: int,
+                       bold: bool = None, italic: bool = None, underline: bool = None,
+                       font_size: float = None, foreground_color: str = "") -> str:
+    """Format text within a shape on a slide (bold, italic, size, color)."""
+    return tools_slides.slides_format_text(presentation_id, shape_id, start_index, end_index,
+                                            bold, italic, underline, font_size, foreground_color)
+
+@mcp.tool()
+def slides_get_thumbnail(presentation_id: str, slide_id: str) -> str:
+    """Get a thumbnail image URL for a slide."""
+    return tools_slides.slides_get_thumbnail(presentation_id, slide_id)
+
 # ── Forms ────────────────────────────────────────────────────────────────────
 
 @mcp.tool()
@@ -293,6 +613,34 @@ def forms_read(form_id: str) -> str:
 def forms_list_responses(form_id: str, max_results: int = 50) -> str:
     """List all responses submitted to a Google Form."""
     return tools_forms.forms_list_responses(form_id, max_results)
+
+@mcp.tool()
+def forms_add_question(form_id: str, title: str, question_type: str = "TEXT",
+                       required: bool = False, options: list[str] = None,
+                       paragraph: bool = False, index: int = -1) -> str:
+    """Add a question to a form. Types: TEXT, PARAGRAPH, RADIO, CHECKBOX, DROP_DOWN, SCALE."""
+    return tools_forms.forms_add_question(form_id, title, question_type, required, options, paragraph, index)
+
+@mcp.tool()
+def forms_update_question(form_id: str, item_index: int, title: str = "",
+                          required: bool = None) -> str:
+    """Update an existing question in a form."""
+    return tools_forms.forms_update_question(form_id, item_index, title, required)
+
+@mcp.tool()
+def forms_delete_question(form_id: str, item_index: int) -> str:
+    """Delete a question from a form by its 0-based index."""
+    return tools_forms.forms_delete_question(form_id, item_index)
+
+@mcp.tool()
+def forms_move_question(form_id: str, from_index: int, to_index: int) -> str:
+    """Move/reorder a question in a form."""
+    return tools_forms.forms_move_question(form_id, from_index, to_index)
+
+@mcp.tool()
+def forms_update_settings(form_id: str, is_quiz: bool = None, description: str = "") -> str:
+    """Update form settings (make it a quiz, change description)."""
+    return tools_forms.forms_update_settings(form_id, is_quiz, description)
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────

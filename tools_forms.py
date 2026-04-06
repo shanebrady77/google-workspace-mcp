@@ -95,3 +95,137 @@ def forms_list_responses(form_id: str, max_results: int = 50) -> str:
         })
 
     return json.dumps({"total": len(responses), "responses": responses}, indent=2)
+
+
+def forms_add_question(form_id: str, title: str, question_type: str = "TEXT",
+                       required: bool = False, options: list[str] = None,
+                       paragraph: bool = False, index: int = -1) -> str:
+    """Add a question to a Google Form.
+
+    Args:
+        form_id: The form ID.
+        title: Question title/text.
+        question_type: Question type — 'TEXT', 'PARAGRAPH', 'RADIO', 'CHECKBOX', 'DROP_DOWN', 'SCALE'.
+        required: Whether the question is required.
+        options: List of options for RADIO, CHECKBOX, or DROP_DOWN questions.
+        paragraph: If True for TEXT type, makes it a long-answer field.
+        index: Position to insert at (-1 = end).
+    """
+    svc = _forms()
+    question = {"required": required}
+
+    if question_type in ("RADIO", "CHECKBOX", "DROP_DOWN"):
+        question["choiceQuestion"] = {
+            "type": question_type,
+            "options": [{"value": o} for o in (options or ["Option 1"])],
+        }
+    elif question_type == "SCALE":
+        question["scaleQuestion"] = {"low": 1, "high": 5, "lowLabel": "", "highLabel": ""}
+    else:
+        question["textQuestion"] = {"paragraph": paragraph or question_type == "PARAGRAPH"}
+
+    item = {"title": title, "questionItem": {"question": question}}
+    request = {"createItem": {"item": item, "location": {"index": max(index, 0) if index >= 0 else 0}}}
+
+    result = svc.forms().batchUpdate(formId=form_id, body={"requests": [request]}).execute()
+    return json.dumps({"status": "question_added", "formId": form_id})
+
+
+def forms_update_question(form_id: str, item_index: int, title: str = "",
+                          required: bool = None) -> str:
+    """Update an existing question in a Google Form.
+
+    Args:
+        form_id: The form ID.
+        item_index: The 0-based index of the item to update.
+        title: New title (empty = no change).
+        required: New required setting (None = no change).
+    """
+    svc = _forms()
+    requests = []
+    update_mask = []
+
+    item = {}
+    if title:
+        item["title"] = title
+        update_mask.append("title")
+    if required is not None:
+        item["questionItem"] = {"question": {"required": required}}
+        update_mask.append("questionItem.question.required")
+
+    if update_mask:
+        requests.append({
+            "updateItem": {
+                "item": item,
+                "location": {"index": item_index},
+                "updateMask": ",".join(update_mask),
+            }
+        })
+
+    svc.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
+    return json.dumps({"status": "question_updated", "formId": form_id, "index": item_index})
+
+
+def forms_delete_question(form_id: str, item_index: int) -> str:
+    """Delete a question from a Google Form.
+
+    Args:
+        form_id: The form ID.
+        item_index: The 0-based index of the item to delete.
+    """
+    svc = _forms()
+    svc.forms().batchUpdate(formId=form_id, body={
+        "requests": [{"deleteItem": {"location": {"index": item_index}}}]
+    }).execute()
+    return json.dumps({"status": "question_deleted", "formId": form_id, "index": item_index})
+
+
+def forms_move_question(form_id: str, from_index: int, to_index: int) -> str:
+    """Move/reorder a question in a Google Form.
+
+    Args:
+        form_id: The form ID.
+        from_index: Current 0-based index of the item.
+        to_index: New 0-based index to move it to.
+    """
+    svc = _forms()
+    svc.forms().batchUpdate(formId=form_id, body={
+        "requests": [{
+            "moveItem": {
+                "originalLocation": {"index": from_index},
+                "newLocation": {"index": to_index},
+            }
+        }]
+    }).execute()
+    return json.dumps({"status": "question_moved", "from": from_index, "to": to_index})
+
+
+def forms_update_settings(form_id: str, is_quiz: bool = None,
+                          description: str = "") -> str:
+    """Update form info and settings.
+
+    Args:
+        form_id: The form ID.
+        is_quiz: Set True to make this a quiz, False for regular form.
+        description: New form description (empty = no change).
+    """
+    svc = _forms()
+    requests = []
+    if is_quiz is not None:
+        requests.append({
+            "updateSettings": {
+                "settings": {"quizSettings": {"isQuiz": is_quiz}},
+                "updateMask": "quizSettings.isQuiz",
+            }
+        })
+    if description:
+        requests.append({
+            "updateFormInfo": {
+                "info": {"description": description},
+                "updateMask": "description",
+            }
+        })
+
+    if requests:
+        svc.forms().batchUpdate(formId=form_id, body={"requests": requests}).execute()
+    return json.dumps({"status": "settings_updated", "formId": form_id})

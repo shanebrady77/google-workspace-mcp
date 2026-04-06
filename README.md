@@ -14,7 +14,7 @@ Built with FastMCP. Uses your own Google Cloud OAuth credentials. You own everyt
 
 1. Go to https://console.cloud.google.com → Create a new project
 2. Enable these APIs (APIs & Services → Library):
-   - Gmail, Calendar, Drive, Docs, Sheets, Slides, Forms, Tasks, People, Chat, Apps Script
+   - Gmail, Calendar, Drive, Docs, Sheets, Slides, Forms, Tasks, People, Google Meet
 3. Set up OAuth consent screen (APIs & Services → OAuth consent screen):
    - Choose External, add your email as test user
    - Add all workspace scopes
@@ -64,7 +64,7 @@ First time you use any tool, a browser window opens for Google OAuth. Sign in, a
 
 ---
 
-## Tools (50 total)
+## Tools (51 total)
 
 ### Gmail (7)
 - `gmail_search` — search with Gmail query syntax
