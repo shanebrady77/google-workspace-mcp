@@ -64,7 +64,7 @@ First time you use any tool, a browser window opens for Google OAuth. Sign in, a
 
 ---
 
-## Tools (46 total)
+## Tools (50 total)
 
 ### Gmail (7)
 - `gmail_search` — search with Gmail query syntax
@@ -81,6 +81,12 @@ First time you use any tool, a browser window opens for Google OAuth. Sign in, a
 - `calendar_create_event` — create events with attendees + Google Meet links
 - `calendar_update_event` — update existing events
 - `calendar_delete_event` — delete events
+
+### Meet (4)
+- `meet_create_space` — create a meeting space
+- `meet_get_space` — get meeting space by name
+- `meet_list_participants` — list participants and sessions
+- `meet_get_artifacts` — get recordings, transcripts, and transcript entries
 
 ### Drive (6)
 - `drive_search` — search files
@@ -143,6 +149,8 @@ Want to rebuild this from scratch using Claude? Paste this into Claude Code Desk
 >
 > Calendar (5): list calendars, get events (with time range + search), create event (with attendees, timezone, Google Meet link generation), update event, delete event
 >
+> Meet (4): create meeting space, get meeting space by name, list participants/sessions, get meeting artifacts (recordings, transcripts)
+>
 > Drive (6): search files, read file content (export Google Docs/Sheets/Slides to text), create file (plain text or Google Doc), list folder, share file, create folder
 >
 > Docs (5): create, read, insert text at position, find and replace, append text
@@ -158,7 +166,7 @@ Want to rebuild this from scratch using Claude? Paste this into Claude Code Desk
 > Forms (3): create form, read form structure, list responses
 >
 > Requirements:
-> - Separate file per service (tools_gmail.py, tools_calendar.py, etc) plus auth.py and server.py
+> - Separate file per service (tools_gmail.py, tools_calendar.py, tools_meet.py, etc) plus auth.py and server.py
 > - auth.py handles Google OAuth2: reads GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET from env vars, opens browser on first use, saves token to ~/.gw-mcp/token.json, auto-refreshes
 > - Use google-api-python-client and google-auth-oauthlib
 > - pyproject.toml with uv, entry point gw-mcp = "server:main"
